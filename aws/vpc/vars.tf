@@ -6,6 +6,10 @@ variable "env" {
   type = string
 }
 
+variable "aws_region" {
+  type = string
+}
+
 variable "cidr" {
   type = string
 }
@@ -50,6 +54,16 @@ variable "private_subnets" {
   type = list(string)
 }
 
+variable "database_subnets" {
+  type    = list(string)
+  default = []
+}
+
+variable "elasticache_subnets" {
+  type    = list(string)
+  default = []
+}
+
 variable "reuse_nat_ips" {
   type    = bool
   default = true
@@ -74,4 +88,8 @@ variable "create_database_nat_gateway_route" {
   type        = bool
   description = "Controls if a nat gateway route should be created to give internet access to the database subnets"
   default     = false
+}
+
+variable "enable_dns_support" {
+  type = bool
 }
