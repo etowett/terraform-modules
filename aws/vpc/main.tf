@@ -28,7 +28,7 @@ module "vpc" {
   database_subnets    = var.database_subnets
   elasticache_subnets = var.elasticache_subnets
 
-  reuse_nat_ips = var.reuse_nat_ips
+  reuse_nat_ips       = var.reuse_nat_ips
   external_nat_ip_ids = [aws_eip.nat.id]
 
   create_database_subnet_group           = var.create_database_subnet_group
@@ -40,10 +40,4 @@ module "vpc" {
   single_nat_gateway                     = var.single_nat_gateway
   enable_dhcp_options                    = var.enable_dhcp_options
   one_nat_gateway_per_az                 = var.one_nat_gateway_per_az
-
-
-  tags = {
-    Name = var.name
-    Env  = var.env
-  }
 }
