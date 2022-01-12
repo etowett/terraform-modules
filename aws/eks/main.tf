@@ -1,7 +1,11 @@
-terraform {
-  backend "s3" {
-  }
+provider "aws" {
+  region = var.aws_region
 }
+
+terraform {
+  backend "s3" {}
+}
+
 
 data "aws_vpc" "vpc" {
   filter {
@@ -20,18 +24,17 @@ data "aws_subnet_ids" "private_subnets" {
 }
 
 module "eks" {
-  source = "terraform-aws-modules/eks/aws"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 18.0"
 
   cluster_version = var.cluster_version
   cluster_name    = var.name
-  vpc_id          = data.aws_vpc.vpc.id
-  subnets         = data.aws_subnet_ids.private_subnets.ids
 
-  worker_groups = var.worker_groups
-}
+  cluster_endpoint_private_access = true
+  cluster_endpoint_public_access  = true
 
-variable "worker_groups" {
-  description = "A list of maps defining worker group configurations to be defined using AWS Launch Configurations."
-  type        = any
-  default     = []
+  vpc_id     = data.aws_vpc.vpc.id
+  subnet_ids = data.aws_subnet_ids.private_subnets.ids
+
+  eks_managed_node_groups = var.eks_managed_node_groups
 }

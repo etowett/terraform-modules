@@ -1,4 +1,12 @@
+variable "aws_region" {
+  type = string
+}
+
 variable "name" {
+  type = string
+}
+
+variable "vpc_name" {
   type = string
 }
 
@@ -7,10 +15,8 @@ variable "cluster_version" {
   default = "1.21"
 }
 
-variable "vpc_name" {
-  type = string
-}
-
-variable "worker_groups" {
-  type = list(any)
+variable "eks_managed_node_groups" {
+  description = "A list of maps defining worker group configurations to be defined using AWS Launch Configurations."
+  type        = any
+  default     = {}
 }
