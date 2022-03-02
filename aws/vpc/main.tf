@@ -1,5 +1,4 @@
 terraform {
-  # The configuration for this backend will be filled in by Terragrunt
   backend "s3" {}
 }
 
@@ -13,7 +12,7 @@ resource "aws_eip" "nat" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "3.11.0"
+  version = "3.12.0"
 
   name = var.name
   cidr = var.cidr

@@ -14,8 +14,11 @@ data "aws_vpc" "vpc" {
   }
 }
 
-data "aws_subnet_ids" "private_subnets" {
-  vpc_id = data.aws_vpc.vpc.id
+data "aws_subnets" "private_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
 
   filter {
     name   = "tag:Name"
@@ -25,7 +28,7 @@ data "aws_subnet_ids" "private_subnets" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 18.0"
+  version = "18.7.2"
 
   cluster_version = var.cluster_version
   cluster_name    = var.name
@@ -34,7 +37,7 @@ module "eks" {
   cluster_endpoint_public_access  = true
 
   vpc_id     = data.aws_vpc.vpc.id
-  subnet_ids = data.aws_subnet_ids.private_subnets.ids
+  subnet_ids = data.aws_subnets.private_subnets.ids
 
   eks_managed_node_groups = var.eks_managed_node_groups
 }

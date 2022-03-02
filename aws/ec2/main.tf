@@ -7,22 +7,39 @@ terraform {
 }
 
 data "aws_vpc" "vpc" {
-  tags = {
-    Name = var.vpc_name
+  filter {
+    name   = "tag:Name"
+    values = [var.vpc_name]
   }
 }
 
-data "aws_subnet_ids" "subnet_ids" {
-  vpc_id = data.aws_vpc.vpc.id
-
-  tags = {
-    Name = "*${var.subnet_filter}*"
+data "aws_subnets" "subnet_ids" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
   }
+
+  filter {
+    name   = "tag:Name"
+    values = ["*${var.subnet_filter}*"]
+  }
+}
+
+resource "random_id" "index" {
+  byte_length = 2
+}
+
+locals {
+  subnet_ids_list = tolist(data.aws_subnets.subnet_ids.ids)
+
+  subnet_ids_random_index = random_id.index.dec % length(data.aws_subnets.subnet_ids.ids)
+
+  instance_subnet_id = local.subnet_ids_list[local.subnet_ids_random_index]
 }
 
 module "ec2-instance" {
   source                      = "terraform-aws-modules/ec2-instance/aws"
-  version                     = "~> 3.0"
+  version                     = "3.4.0"
   name                        = var.name
   count                       = var.instance_count
   ami                         = var.ami_id
@@ -32,7 +49,7 @@ module "ec2-instance" {
   key_name                    = var.key_name
   user_data                   = var.user_data
   monitoring                  = true
-  subnet_id                   = sort(data.aws_subnet_ids.subnet_ids.ids)[0]
+  subnet_id                   = local.instance_subnet_id
 
   vpc_security_group_ids = [
     aws_security_group.ec2-instance-sg.id
